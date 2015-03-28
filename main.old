@@ -1,42 +1,140 @@
 #include <iostream>
+#include <ctime>
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
-void display()
+#include "asteroid.h"
+#include "mgl.h"
+
+using namespace std;
+
+GLFWwindow* window;
+
+// Window dimensions
+const GLuint WIDTH = 800, HEIGHT = 800;
+
+const int NUM_ASTEROIDS = 10;
+const int NUM_ASTEROID_VERTICES = 8;
+
+vector<GLfloat> Asteroid::asteroid_vertices;
+vector<Asteroid> asteroids;
+
+const GLfloat RADIUS_LARGE = 0.1875f;
+GLfloat RADIUS_MEDIUM = 0.09375f;
+GLfloat RADIUS_SMALL = 0.046875f;
+
+GLuint VBO, VAO;
+
+GLuint vertex_shader, frag_shader, program;
+
+void init_glfw()
+{
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  // Init GLFW
+  glfwInit();
+
+  // Set all the required options for GLFW
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+  window = glfwCreateWindow(WIDTH, HEIGHT, "Asteroids", nullptr, nullptr);
+  glfwMakeContextCurrent(window);
+
+  glewExperimental = GL_TRUE;
+
+  glewInit();
+
+  glViewport(0, 0, WIDTH, HEIGHT);
+}
+
+void create_asteroids()
+{
+  Asteroid::generate_asteroid_vertices(NUM_ASTEROID_VERTICES, RADIUS_LARGE);  
+
+  for(int i=0; i != NUM_ASTEROIDS; i++)
+  {
+    Asteroid asteroid;
+    asteroids.push_back(asteroid);
+  }
+}
+
+void init_opengl()
+{
+  program = mgl::load_shaders("vertex.glsl", "fragment.glsl");
+
+  create_asteroids();
+
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO); 
+  glBindVertexArray(VAO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, Asteroid::asteroid_vertices.size()*sizeof(GLfloat), Asteroid::asteroid_vertices.data(), GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(0);
+
+  glBindVertexArray(0);
+}
+
+void draw()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glColor3f(1.0, 1.0, 1.0);
-  glBegin(GL_POLYGON);
-    glVertex3f(0.25, 0.25, 0.0);
-    glVertex3f(0.75, 0.25, 0.0);
-    glVertex3f(0.75, 0.75, 0.0);
-    glVertex3f(0.25, 0.75, 0.0);
-  glEnd();
+  GLint modelLoc = glGetUniformLocation(program, "model");
 
-  glFlush();
-}
+  glBindVertexArray(VAO);
 
-void init()
-{
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+  GLfloat timer = glfwGetTime();
+
+  timer /= 10;
+
+
+  for(int i=0; i != asteroids.size(); i++)
+  {
+    glm::mat4 model;
+    glm::vec3 position = asteroids[i].get_position();
+    GLfloat angle = glm::radians(asteroids[i].get_angle());
+
+    position.x += timer*cos(angle);
+    position.y += timer*sin(angle);   
+
+    model = glm::translate(model, position);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+  }
+
+  glBindVertexArray(0);
 }
 
 int main(int argc, char** argv)
 {
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-  glutInitWindowSize(250, 250);
-  glutInitWindowPosition(100, 100);
-  glutInitContextVersion(3,0);
-  glutInitContextProfile(GLUT_CORE_PROFILE | GLUT_COMPATIBILITY_PROFILE);
-  glutCreateWindow("hello");
-  init();
-  glutDisplayFunc(display);
-  glutMainLoop;
+  srand(static_cast<unsigned>(time(0)));
 
-  return 0;
+  // timer /= 100;
+
+  init_glfw();
+
+  init_opengl();
+
+
+  // for(int i=0; i != NUM_ASTEROID_VERTICES*2; i += 2)
+  //   cout << Asteroid::asteroid_vertices[i] << ", " << Asteroid::asteroid_vertices[i+1] << endl;
+
+  while(!glfwWindowShouldClose(window))
+  {
+    glfwPollEvents();
+
+    glUseProgram(program);
+
+    draw();
+
+    glfwSwapBuffers(window);
+  }
+
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &VAO);
+
+  glfwTerminate();
 }

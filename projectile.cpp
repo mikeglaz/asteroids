@@ -4,30 +4,62 @@
 
 Projectile::Projectile()
 {
-  float x = -1.0 + static_cast <float>(rand()) /( static_cast <float>(RAND_MAX/(1.0-(-1.0))));
-  float y = -1.0 + static_cast <float>(rand()) /( static_cast <float> (RAND_MAX/(1.0-(-1.0))));
-  pos[0] = x;
-  pos[1] = y;
+  GLfloat x = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(1.0-(-1.0))));
+  GLfloat y = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat> (RAND_MAX/(1.0-(-1.0))));
+  position.x = x;
+  position.y = y;
+
+  angle = static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/360));
 }
 
-Projectile::Projectile(float x, float y)
+Projectile::Projectile(GLfloat x, GLfloat y)
 {
-  pos[0] = x;
-  pos[1] = y;
+  position.x = x;
+  position.y = y;
 }
 
-float Projectile::get_x() const
+GLfloat Projectile::get_x() const
 {
-  return pos[0];
+  return position.x;
 }
 
-float Projectile::get_y() const
+GLfloat Projectile::get_y() const
 {
-  return pos[1];
+  return position.y;
 }
 
-std::ostream& operator<<(std::ostream& os, const Projectile& pos)
+glm::vec3 Projectile::get_position() const
 {
-  os << pos.get_x() << ", " << pos.get_y();
+  return position;
+}
+
+GLfloat Projectile::get_angle() const
+{
+  return angle;
+}
+
+void Projectile::move(GLfloat delta)
+{
+  std::cout << delta*cos(angle) << ", " << delta*sin(angle) << std::endl;
+  position.x += delta*cos(angle);
+  position.y += delta*cos(angle);  
+}
+
+void Projectile::check_position()
+{
+  if(position.x < -1.0)
+    position.x += 2.0;
+  else if(position.x > 1.0)
+    position.x -= 2.0;
+
+  if(position.y < -1.0)
+    position.y += 2.0;
+  else if(position.y > 1.0)
+    position.y -= 2.0;
+}
+
+std::ostream& operator<<(std::ostream& os, const Projectile& position)
+{
+  os << position.get_x() << ", " << position.get_y();
   return os;
 }
