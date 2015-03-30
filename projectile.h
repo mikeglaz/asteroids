@@ -1,3 +1,6 @@
+#ifndef PROJECTILE_H
+#define PROJECTILE_H
+
 #include <iostream>
 #include <cmath>
 #include <GL/glew.h>
@@ -8,6 +11,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 class Projectile{
+
+protected:
   glm::vec3 position;
   GLfloat angle;
 
@@ -21,8 +26,10 @@ public:
   GLfloat get_angle() const;
   void reverse_x();
   void reverse_y();
-  void move(GLfloat);
+  virtual void move(GLfloat);
   void check_position();
 };
 
 std::ostream& operator<<(std::ostream&, const Projectile&);
+
+#endif

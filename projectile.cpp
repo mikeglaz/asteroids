@@ -9,7 +9,7 @@ Projectile::Projectile()
   position.x = x;
   position.y = y;
 
-  angle = static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/360));
+  angle = rand()/(RAND_MAX/360);
 }
 
 Projectile::Projectile(GLfloat x, GLfloat y)
@@ -38,13 +38,6 @@ GLfloat Projectile::get_angle() const
   return angle;
 }
 
-void Projectile::move(GLfloat delta)
-{
-  std::cout << delta*cos(angle) << ", " << delta*sin(angle) << std::endl;
-  position.x += delta*cos(angle);
-  position.y += delta*cos(angle);  
-}
-
 void Projectile::check_position()
 {
   if(position.x < -1.0)
@@ -56,6 +49,12 @@ void Projectile::check_position()
     position.y += 2.0;
   else if(position.y > 1.0)
     position.y -= 2.0;
+}
+
+void Projectile::move(GLfloat delta)
+{
+  position.x += delta*cos(angle);
+  position.y += delta*sin(angle);  
 }
 
 std::ostream& operator<<(std::ostream& os, const Projectile& position)

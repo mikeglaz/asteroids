@@ -11,6 +11,7 @@ class Asteroid : public Projectile
 public:
   static std::vector<GLfloat> asteroid_vertices;
   Asteroid() : Projectile(){};
-  Asteroid(GLfloat x, GLfloat y) : Projectile{x,y} {}
+  // Asteroid(GLfloat x, GLfloat y) : Projectile{x,y} {}
   static void generate_asteroid_vertices(int, GLfloat);
+  void move(GLfloat);
 };
