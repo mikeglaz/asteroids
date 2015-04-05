@@ -15,6 +15,7 @@ class Projectile{
 protected:
   glm::vec3 position;
   GLfloat angle;
+  GLboolean active;
 
 public:
   Projectile();

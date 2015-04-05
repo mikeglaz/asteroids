@@ -9,21 +9,21 @@ void Ship::accelerate()
 {
   GLfloat radians = glm::radians(angle);
 
-  if(speedX < 5.0f && speedX > -5.0f)
-    speedX += cos(radians);
+  if(speedX < 3.0f && speedX > -3.0f)
+    speedX += .01*cos(radians);
 
-  if(speedX >= 5.0f && cos(radians) < 0.0f)
-    speedX += cos(radians);
-  else if(speedX <= -5.0f && cos(radians) > 0.0f)
-    speedX += cos(radians);
+  if(speedX >= 3.0f && cos(radians) < 0.0f)
+    speedX += .01*cos(radians);
+  else if(speedX <= -3.0f && cos(radians) > 0.0f)
+    speedX += .01*cos(radians);
 
-  if(speedY < 5.0f && speedY > -5.0f)
-    speedY += sin(radians);
+  if(speedY < 3.0f && speedY > -3.0f)
+    speedY += .01*sin(radians);
 
-  if(speedY >= 5.0f && sin(radians) < 0.0f)
-    speedY += sin(radians);
-  else if(speedY <= -5.0f && sin(radians) > 0.0f)
-    speedY += sin(radians);
+  if(speedY >= 3.0f && sin(radians) < 0.0f)
+    speedY += .01*sin(radians);
+  else if(speedY <= -3.0f && sin(radians) > 0.0f)
+    speedY += .01*sin(radians);
 }
 
 void Ship::move(GLfloat delta)
@@ -35,14 +35,14 @@ void Ship::move(GLfloat delta)
 void Ship::rotate(Direction dir)
 {
   if(dir == Direction::left)
-    angle += 5.0f;
+    angle += 0.25f;
   else
-    angle -= 5.0f;
+    angle -= 0.25f;
 
   if(angle > 360)
     angle = 0.0f;
   else if(angle < 0)
-    angle = 355.0f;  
+    angle = 360.0f;  
 }
 
 GLfloat Ship::get_angle() const

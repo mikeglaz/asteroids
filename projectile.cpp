@@ -53,8 +53,25 @@ void Projectile::check_position()
 
 void Projectile::move(GLfloat delta)
 {
-  position.x += delta*cos(angle);
-  position.y += delta*sin(angle);  
+  GLfloat radians = glm::radians(angle);
+
+  position.x += delta*cos(radians);
+  position.y += delta*sin(radians);  
+}
+
+GLboolean Projectile::get_active() const
+{
+  return active;
+}
+
+void Projectile::activate()
+{
+  active = GL_TRUE;
+}
+
+void Projectile::deactivate()
+{
+  active = GL_FALSE;
 }
 
 std::ostream& operator<<(std::ostream& os, const Projectile& position)
