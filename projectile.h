@@ -29,6 +29,9 @@ public:
   void reverse_y();
   virtual void move(GLfloat);
   void check_position();
+  GLboolean get_active() const;
+  void activate();
+  void deactivate();
 };
 
 std::ostream& operator<<(std::ostream&, const Projectile&);

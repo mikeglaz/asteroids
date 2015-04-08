@@ -45,4 +45,22 @@ void Asteroid::move(GLfloat delta)
   position.y += delta*sin(angle);  
 }
 
+void Asteroid::set_radius(Radius r)
+{
+  radius = r;
+}
+
+void Asteroid::check_collision(glm::vec3 ship_position)
+{
+  static int i=0;
+  
+  if(std::abs(position.x - ship_position.x) < RADIUS_LARGE && std::abs(position.y - ship_position.y) < RADIUS_LARGE)
+  {
+    std::cout << "collision" << i++ << std::endl;
+    std::cout << std::abs(position.x) << ", " << std::abs(position.y) << std::endl;
+    std::cout << std::abs(ship_position.y) << ", " << std::abs(ship_position.y) << std::endl << std::endl;
+  }
+  // std::cout << position.x << ", " << ship_position.x << std::endl;
+}
+
 

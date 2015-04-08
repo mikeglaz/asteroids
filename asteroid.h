@@ -22,4 +22,6 @@ public:
   // Asteroid(GLfloat x, GLfloat y) : Projectile{x,y} {}
   static void generate_asteroid_vertices(int, Radius);
   void move(GLfloat);
+  void set_radius(Radius);
+  void check_collision(glm::vec3);
 };

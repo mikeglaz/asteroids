@@ -92,6 +92,7 @@ void create_asteroids()
   {
     Asteroid asteroid;
     asteroid.activate();
+    asteroid.set_radius(Radius::large);
     large_asteroids.push_back(asteroid);
   }
 
@@ -100,6 +101,7 @@ void create_asteroids()
   for(int i=0; i != NUM_MEDIUM_ASTEROIDS; i++)
   {
     Asteroid asteroid;
+    asteroid.set_radius(Radius::medium);
     medium_asteroids.push_back(asteroid);
   }
 
@@ -108,6 +110,7 @@ void create_asteroids()
   for(int i=0; i != NUM_SMALL_ASTEROIDS; i++)
   {
     Asteroid asteroid;
+    asteroid.set_radius(Radius::small);
     small_asteroids.push_back(asteroid);
   }    
 }
@@ -225,14 +228,18 @@ void draw()
 
   for(int i=0; i != large_asteroids.size(); i++)
   {
-    glm::mat4 model;
+    if(large_asteroids[i].get_active())
+    {
+      glm::mat4 model;
 
-    large_asteroids[i].move(delta);
-    large_asteroids[i].check_position();
+      large_asteroids[i].move(delta);
+      large_asteroids[i].check_collision(ship.get_position());
+      large_asteroids[i].check_position();
 
-    model = glm::translate(model, large_asteroids[i].get_position());
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+      model = glm::translate(model, large_asteroids[i].get_position());
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+    }
   }
 
   glBindVertexArray(0);
@@ -242,14 +249,17 @@ void draw()
 
   for(int i=0; i != medium_asteroids.size(); i++)
   {
-    glm::mat4 model;
+    if(medium_asteroids[i].get_active())
+    {
+      glm::mat4 model;
 
-    medium_asteroids[i].move(delta);
-    medium_asteroids[i].check_position();
+      medium_asteroids[i].move(delta);
+      medium_asteroids[i].check_position();
 
-    model = glm::translate(model, medium_asteroids[i].get_position());
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+      model = glm::translate(model, medium_asteroids[i].get_position());
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+    }
   }
 
   glBindVertexArray(0);  
@@ -259,14 +269,17 @@ void draw()
 
   for(int i=0; i != small_asteroids.size(); i++)
   {
-    glm::mat4 model;
+    if(small_asteroids[i].get_active())
+    {
+      glm::mat4 model;
 
-    small_asteroids[i].move(delta);
-    small_asteroids[i].check_position();
+      small_asteroids[i].move(delta);
+      small_asteroids[i].check_position();
 
-    model = glm::translate(model, small_asteroids[i].get_position());
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+      model = glm::translate(model, small_asteroids[i].get_position());
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+    }
   }
 
   glBindVertexArray(0);  
