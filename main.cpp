@@ -36,7 +36,7 @@ GLuint small_asteroids_vbo, small_asteroids_vao;
 GLuint ship_vbo, ship_vao;
 GLuint bullet_vbo, bullet_vao;
 
-GLuint vertex_shader, frag_shader, program;
+GLuint program;
 
 GLfloat now = 0, delta = 0;
 
@@ -213,6 +213,7 @@ void check_keyboard()
 void draw()
 {
   static GLfloat last = 0;
+  bool collision = false;
   now = glfwGetTime();
   delta = now - last;
 
@@ -244,45 +245,45 @@ void draw()
 
   glBindVertexArray(0);
 
-// draw medium asteroids
-  glBindVertexArray(medium_asteroids_vao);
+// // draw medium asteroids
+//   glBindVertexArray(medium_asteroids_vao);
 
-  for(int i=0; i != medium_asteroids.size(); i++)
-  {
-    if(medium_asteroids[i].get_active())
-    {
-      glm::mat4 model;
+//   for(int i=0; i != medium_asteroids.size(); i++)
+//   {
+//     if(medium_asteroids[i].get_active())
+//     {
+//       glm::mat4 model;
 
-      medium_asteroids[i].move(delta);
-      medium_asteroids[i].check_position();
+//       medium_asteroids[i].move(delta);
+//       medium_asteroids[i].check_position();
 
-      model = glm::translate(model, medium_asteroids[i].get_position());
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
-    }
-  }
+//       model = glm::translate(model, medium_asteroids[i].get_position());
+//       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+//       glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+//     }
+//   }
 
-  glBindVertexArray(0);  
+//   glBindVertexArray(0);  
 
-// draw large asteroids
-  glBindVertexArray(small_asteroids_vao);
+// // draw small asteroids
+//   glBindVertexArray(small_asteroids_vao);
 
-  for(int i=0; i != small_asteroids.size(); i++)
-  {
-    if(small_asteroids[i].get_active())
-    {
-      glm::mat4 model;
+//   for(int i=0; i != small_asteroids.size(); i++)
+//   {
+//     if(small_asteroids[i].get_active())
+//     {
+//       glm::mat4 model;
 
-      small_asteroids[i].move(delta);
-      small_asteroids[i].check_position();
+//       small_asteroids[i].move(delta);
+//       small_asteroids[i].check_position();
 
-      model = glm::translate(model, small_asteroids[i].get_position());
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
-    }
-  }
+//       model = glm::translate(model, small_asteroids[i].get_position());
+//       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+//       glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+//     }
+//   }
 
-  glBindVertexArray(0);  
+//   glBindVertexArray(0);  
 
 // draw ship
   glBindVertexArray(ship_vao);
@@ -297,6 +298,7 @@ void draw()
   model = glm::translate(model, ship.get_position());
   model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
 
+  //draw ship
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glDrawArrays(GL_LINE_LOOP, 0, 3);
   glBindVertexArray(0);
