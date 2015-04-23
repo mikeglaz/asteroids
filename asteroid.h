@@ -23,5 +23,5 @@ public:
   static void generate_asteroid_vertices(int, Radius);
   void move(GLfloat);
   void set_radius(Radius);
-  void check_collision(glm::vec3);
+  bool check_collision(glm::vec3);
 };
