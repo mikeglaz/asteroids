@@ -14,9 +14,9 @@ GLFWwindow* window;
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 800;
 
-const int NUM_LARGE_ASTEROIDS = 10;
-const int NUM_MEDIUM_ASTEROIDS = 20;
-const int NUM_SMALL_ASTEROIDS = 20;
+const int NUM_LARGE_ASTEROIDS = 5;
+const int NUM_MEDIUM_ASTEROIDS = 10;
+const int NUM_SMALL_ASTEROIDS = 10;
 const int NUM_ASTEROID_VERTICES = 8;
 const GLint NUM_BULLETS = 10;
 
@@ -34,11 +34,14 @@ GLuint large_asteroids_vbo, large_asteroids_vao;
 GLuint medium_asteroids_vbo, medium_asteroids_vao;
 GLuint small_asteroids_vbo, small_asteroids_vao;
 GLuint ship_vbo, ship_vao;
+GLuint ship_sideA_vao, ship_sideA_vbo, ship_sideA_buffer;
+GLuint ship_sideB_vao, ship_sideB_vbo, ship_sideB_buffer;
+GLuint ship_sideC_vao, ship_sideC_vbo, ship_sideC_buffer;
 GLuint bullet_vbo, bullet_vao;
-
+bool ship_destruction = false;
+bool ship_ready = true;
+GLfloat start = glfwGetTime();
 GLuint program;
-
-GLfloat now = 0, delta = 0;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -124,13 +127,8 @@ void create_bullets()
   }
 }
 
-void init_opengl()
+void init_asteroids()
 {
-  program = mgl::load_shaders("vertex.glsl", "fragment.glsl");
-
-  create_asteroids();
-  create_bullets();
-
   // init large asteroids
   glGenVertexArrays(1, &large_asteroids_vao);
   glGenBuffers(1, &large_asteroids_vbo); 
@@ -165,8 +163,11 @@ void init_opengl()
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(0);
 
-  glBindVertexArray(0);
+  glBindVertexArray(0);  
+}
 
+void init_ship()
+{
 // init ship
   glGenVertexArrays(1, &ship_vao);
   glGenBuffers(1, &ship_vbo);
@@ -177,8 +178,56 @@ void init_opengl()
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(0);
 
+  glBindVertexArray(0);  
+}
+
+void init_ship_sides()
+{
+// side A
+  glGenVertexArrays(1, &ship_sideA_vao);
+  glGenBuffers(1, &ship_sideA_vbo);
+  glBindVertexArray(ship_sideA_vao);
+
+  glBindBuffer(GL_ARRAY_BUFFER, ship_sideA_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*6, ship.get_vertices(), GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(0);
+
+  glGenBuffers(1, &ship_sideA_buffer);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ship_sideA_buffer);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*2, ship.get_sideA(), GL_STATIC_DRAW);
+
+  glBindVertexArray(0);  
+
+// side B
+  glGenVertexArrays(1, &ship_sideB_vao);
+  glBindVertexArray(ship_sideB_vao);
+
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(0);
+
+  glGenBuffers(1, &ship_sideB_buffer);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ship_sideB_buffer);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*2, ship.get_sideB(), GL_STATIC_DRAW);
+
   glBindVertexArray(0);
 
+// side A
+  glGenVertexArrays(1, &ship_sideC_vao);
+  glBindVertexArray(ship_sideC_vao);
+
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(0);
+
+  glGenBuffers(1, &ship_sideC_buffer);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ship_sideC_buffer);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*2, ship.get_sideC(), GL_STATIC_DRAW);
+
+  glBindVertexArray(0);    
+}
+
+void init_bullets()
+{
 // init bullets
   glGenVertexArrays(1, &bullet_vao);
   glGenBuffers(1, &bullet_vbo);
@@ -190,6 +239,22 @@ void init_opengl()
   glEnableVertexAttribArray(0);
 
   glBindVertexArray(0);  
+}
+
+void init_opengl()
+{
+  program = mgl::load_shaders("vertex.glsl", "fragment.glsl");
+
+  create_asteroids();
+  create_bullets();
+
+  init_asteroids();
+
+  init_ship();
+
+  init_ship_sides();
+
+  init_bullets();
 }
 
 void check_keyboard()
@@ -210,14 +275,118 @@ void check_keyboard()
     ship.accelerate();
 }
 
+void draw_ship(GLfloat delta, GLint modelLoc)
+{
+  glBindVertexArray(ship_vao);
+
+  glm::mat4 model;
+
+  check_keyboard();
+
+  ship.move(delta);
+  ship.check_position();
+
+  model = glm::translate(model, ship.get_position());
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
+
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+  glDrawArrays(GL_LINE_LOOP, 0, 3);
+  glBindVertexArray(0);
+}
+
+void draw_blinking_ship(GLfloat delta, GLfloat modelLoc)
+{
+  static GLfloat start = glfwGetTime();
+  GLfloat now = glfwGetTime();
+
+  if(now - start > 5.0)
+    ship_ready = true;
+
+  glm::mat4 model;
+  check_keyboard();
+
+  ship.move(delta);
+  ship.check_position();
+
+  model = glm::translate(model, ship.get_position());  
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+  glBindVertexArray(ship_vao);
+
+  if(sin(now*20) < 0)
+    glDrawArrays(GL_LINE_LOOP, 0, 3);
+
+  glBindVertexArray(0);
+}
+
+void draw_destroyed_ship(GLfloat delta, GLint modelLoc)
+{
+  static GLfloat distance = 0.0f;
+
+  if(distance > 0.125)
+  {
+    ship_destruction = false;
+    distance = 0.0f;
+    ship.reset();
+    ship_ready = false;
+    glfwSetTime(0.0);
+    cout << "here " << glfwGetTime() << endl;
+    cout << "here " << glfwGetTime() << endl;
+  }
+
+  distance += delta;
+
+  glm::mat4 model;
+
+  glBindVertexArray(ship_sideA_vao);
+  model = glm::translate(model, ship.get_position());
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));  
+  model = glm::translate(model, glm::vec3(distance, 0.0f, 0.0f));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+  glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, 0);
+  glBindVertexArray(0);
+
+  glBindVertexArray(ship_sideB_vao);
+  model = glm::mat4();
+  model = glm::translate(model, ship.get_position());
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));  
+  model = glm::translate(model, glm::vec3(0.0f, distance, 0.0f));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));  
+  glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, 0);
+  glBindVertexArray(0);  
+
+  glBindVertexArray(ship_sideC_vao);
+  model = glm::mat4();
+  model = glm::translate(model, ship.get_position());
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f)); 
+  model = glm::translate(model, glm::vec3(distance, distance, 0.0f));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));  
+  glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, 0);
+  glBindVertexArray(0);  
+}
+
 void draw()
 {
   static GLfloat last = 0;
-  bool collision = false;
-  now = glfwGetTime();
-  delta = now - last;
+  static GLfloat last_delta = 0;
+  GLfloat now;
+  GLfloat delta;
+  static int counter=0;
 
-  delta /= 10;
+  cout << last_delta << endl;
+
+  now = glfwGetTime();
+
+  if(!ship_ready)
+    delta = last_delta;
+  else
+  {
+    delta = now - last;
+    delta /= 10.0;
+  }
+
+  last_delta = delta;
 
   last = now;
   GLint modelLoc = glGetUniformLocation(program, "model");
@@ -234,7 +403,9 @@ void draw()
       glm::mat4 model;
 
       large_asteroids[i].move(delta);
-      large_asteroids[i].check_collision(ship.get_position());
+      if(large_asteroids[i].check_collision(ship.get_position()) && ship_ready)
+        ship_destruction = true;
+
       large_asteroids[i].check_position();
 
       model = glm::translate(model, large_asteroids[i].get_position());
@@ -285,23 +456,12 @@ void draw()
 
 //   glBindVertexArray(0);  
 
-// draw ship
-  glBindVertexArray(ship_vao);
-
-  glm::mat4 model;
-
-  check_keyboard();
-
-  ship.move(delta);
-  ship.check_position();
-
-  model = glm::translate(model, ship.get_position());
-  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
-
-  //draw ship
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-  glDrawArrays(GL_LINE_LOOP, 0, 3);
-  glBindVertexArray(0);
+  if(ship_destruction)
+    draw_destroyed_ship(delta, modelLoc);
+  else if(ship_ready)
+    draw_ship(delta, modelLoc);
+  else
+    draw_blinking_ship(delta, modelLoc);
 
 // draw bullets 
   glPointSize(4.0);
@@ -309,7 +469,7 @@ void draw()
 
   for(int i=0; i<NUM_BULLETS; i++)
   {
-    model = glm::mat4();
+    glm::mat4 model;
 
     if(bullets[i].get_active())
     {

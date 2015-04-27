@@ -51,14 +51,9 @@ void Asteroid::set_radius(Radius r)
 }
 
 bool Asteroid::check_collision(glm::vec3 ship_position)
-{
-  static int i=0;
-  
+{  
   if(std::abs(position.x - ship_position.x) < RADIUS_LARGE && std::abs(position.y - ship_position.y) < RADIUS_LARGE)
     return true;
-  else
-    return false;
-  // std::cout << position.x << ", " << ship_position.x << std::endl;
 }
 
 
