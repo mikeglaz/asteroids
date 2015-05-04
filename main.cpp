@@ -296,11 +296,14 @@ void draw_ship(GLfloat delta, GLint modelLoc)
 
 void draw_blinking_ship(GLfloat delta, GLfloat modelLoc)
 {
-  static GLfloat start = glfwGetTime();
+  static int blinking = 0;
   GLfloat now = glfwGetTime();
 
-  if(now - start > 5.0)
+  if(blinking > 1000)
+  {
+    blinking = 0;
     ship_ready = true;
+  }
 
   glm::mat4 model;
   check_keyboard();
@@ -317,7 +320,11 @@ void draw_blinking_ship(GLfloat delta, GLfloat modelLoc)
   if(sin(now*20) < 0)
     glDrawArrays(GL_LINE_LOOP, 0, 3);
 
+  cout << glfwGetTime() << endl;
+
   glBindVertexArray(0);
+
+  blinking++;
 }
 
 void draw_destroyed_ship(GLfloat delta, GLint modelLoc)
@@ -330,9 +337,6 @@ void draw_destroyed_ship(GLfloat delta, GLint modelLoc)
     distance = 0.0f;
     ship.reset();
     ship_ready = false;
-    glfwSetTime(0.0);
-    cout << "here " << glfwGetTime() << endl;
-    cout << "here " << glfwGetTime() << endl;
   }
 
   distance += delta;
@@ -378,8 +382,11 @@ void draw()
 
   now = glfwGetTime();
 
-  if(!ship_ready)
-    delta = last_delta;
+  if(!ship_ready){
+    // delta = last_delta;
+    delta = now - last;
+    delta /= 10.0;
+  }
   else
   {
     delta = now - last;
