@@ -33,6 +33,11 @@ glm::vec3 Projectile::get_position() const
   return position;
 }
 
+void Projectile::set_position(glm::vec3 new_position)
+{
+  position = new_position;
+}
+
 GLfloat Projectile::get_angle() const
 {
   return angle;

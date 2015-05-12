@@ -419,6 +419,18 @@ void draw()
           {
             large_asteroids[i].deactivate();
             bullets[j].deactivate();
+
+            for(int k=0; k<medium_asteroids.size()/2; k += 2)
+            {
+              if(!medium_asteroids[k].get_active())
+              {
+                medium_asteroids[k].activate();
+                medium_asteroids[k].set_position(large_asteroids[i].get_position());
+                medium_asteroids[k+1].activate();
+                medium_asteroids[k+1].set_position(large_asteroids[i].get_position());
+                break;
+              }
+            }
           }
 
       large_asteroids[i].check_position();
@@ -431,23 +443,23 @@ void draw()
 
   glBindVertexArray(0);
 
-// // draw medium asteroids
-//   glBindVertexArray(medium_asteroids_vao);
+// draw medium asteroids
+  glBindVertexArray(medium_asteroids_vao);
 
-//   for(int i=0; i != medium_asteroids.size(); i++)
-//   {
-//     if(medium_asteroids[i].get_active())
-//     {
-//       glm::mat4 model;
+  for(int i=0; i != medium_asteroids.size(); i++)
+  {
+    if(medium_asteroids[i].get_active())
+    {
+      glm::mat4 model;
 
-//       medium_asteroids[i].move(delta);
-//       medium_asteroids[i].check_position();
+      medium_asteroids[i].move(delta);
+      medium_asteroids[i].check_position();
 
-//       model = glm::translate(model, medium_asteroids[i].get_position());
-//       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-//       glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
-//     }
-//   }
+      model = glm::translate(model, medium_asteroids[i].get_position());
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+    }
+  }
 
 //   glBindVertexArray(0);  
 
@@ -493,7 +505,7 @@ void draw()
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));    
       
       bullets[i].check_position();
-      
+
       glDrawArrays(GL_POINTS, 0, 1);      
     }
   }

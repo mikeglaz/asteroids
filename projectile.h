@@ -24,6 +24,7 @@ public:
   GLfloat get_x() const;
   GLfloat get_y() const;
   glm::vec3 get_position() const;
+  void set_position(glm::vec3);
   GLfloat get_angle() const;
   void reverse_x();
   void reverse_y();
