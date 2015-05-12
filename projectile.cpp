@@ -4,8 +4,21 @@
 
 Projectile::Projectile()
 {
-  GLfloat x = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(1.0-(-1.0))));
-  GLfloat y = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat> (RAND_MAX/(1.0-(-1.0))));
+  float x_side = rand() % 2;
+  float y_side = rand() % 2;
+
+  GLfloat x,y;
+
+  if(x_side == 0)
+    x = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(-0.2 - (-1.0))));
+  else
+    x = 0.2 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(1.0-(0.2))));
+
+  if(y_side == 0)
+    y = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(-0.2 - (-1.0))));
+  else
+    y = 0.2 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(1.0-(0.2))));  
+
   position.x = x;
   position.y = y;
 

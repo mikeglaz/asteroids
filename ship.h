@@ -34,6 +34,7 @@ public:
   void move(GLfloat);
   void rotate(Direction);
   void reset();
+  void teleport(GLfloat, GLfloat);
   GLubyte* get_sideA();
   GLubyte* get_sideB();
   GLubyte* get_sideC();

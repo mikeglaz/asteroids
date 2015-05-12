@@ -54,6 +54,12 @@ void Ship::reset()
   speed.y = 0.0f;
 }
 
+void Ship::teleport(GLfloat x, GLfloat y)
+{
+  position.x = x;
+  position.y = y;
+}
+
 GLfloat Ship::get_angle() const
 {
   return angle;

@@ -42,10 +42,11 @@ bool ship_destruction = false;
 bool ship_ready = true;
 GLfloat start = glfwGetTime();
 GLuint program;
+GLfloat game_speed = 1.0;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-  if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+  if(key == GLFW_KEY_SPACE && action == GLFW_PRESS && !ship_destruction)
   {
     int i=0;
     for(int i=0; i<NUM_BULLETS; i++)
@@ -58,6 +59,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         break;
       }
     }
+  }
+
+  if(key == GLFW_KEY_DOWN && action == GLFW_PRESS && !ship_destruction)
+  {
+    GLfloat x = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(1.0 - (-1.0))));
+    GLfloat y = -1.0 + static_cast <GLfloat>(rand()) /( static_cast <GLfloat>(RAND_MAX/(1.0 - (-1.0))));
+
+    ship.teleport(x,y);
   }
 }
 
@@ -93,9 +102,8 @@ void create_asteroids()
 
   for(int i=0; i != NUM_LARGE_ASTEROIDS; i++)
   {
-    Asteroid asteroid;
+    Asteroid asteroid(Radius::large);
     asteroid.activate();
-    asteroid.set_radius(Radius::large);
     large_asteroids.push_back(asteroid);
   }
 
@@ -103,8 +111,7 @@ void create_asteroids()
 
   for(int i=0; i != NUM_MEDIUM_ASTEROIDS; i++)
   {
-    Asteroid asteroid;
-    asteroid.set_radius(Radius::medium);
+    Asteroid asteroid(Radius::medium);
     medium_asteroids.push_back(asteroid);
   }
 
@@ -112,10 +119,30 @@ void create_asteroids()
 
   for(int i=0; i != NUM_SMALL_ASTEROIDS; i++)
   {
-    Asteroid asteroid;
-    asteroid.set_radius(Radius::small);
+    Asteroid asteroid(Radius::small);
     small_asteroids.push_back(asteroid);
   }    
+}
+
+bool asteroids_left()
+{
+  for(int i=0; i != large_asteroids.size(); i++)
+    if(large_asteroids[i].get_active())
+      return true;
+
+  for(int i=0; i != medium_asteroids.size(); i++)
+    if(medium_asteroids[i].get_active())
+      return true;
+
+  for(int i=0; i != small_asteroids.size(); i++)
+    if(small_asteroids[i].get_active())
+      return true;
+
+  large_asteroids.clear();
+  medium_asteroids.clear();
+  small_asteroids.clear();
+
+  return false;
 }
 
 void create_bullets()
@@ -299,7 +326,7 @@ void draw_blinking_ship(GLfloat delta, GLfloat modelLoc)
   static int blinking = 0;
   GLfloat now = glfwGetTime();
 
-  if(blinking > 1000)
+  if(blinking > 2000)
   {
     blinking = 0;
     ship_ready = true;
@@ -320,27 +347,13 @@ void draw_blinking_ship(GLfloat delta, GLfloat modelLoc)
   if(sin(now*20) < 0)
     glDrawArrays(GL_LINE_LOOP, 0, 3);
 
-  cout << glfwGetTime() << endl;
-
   glBindVertexArray(0);
 
   blinking++;
 }
 
-void draw_destroyed_ship(GLfloat delta, GLint modelLoc)
+void draw_destroyed_ship(GLfloat distance, GLint modelLoc)
 {
-  static GLfloat distance = 0.0f;
-
-  if(distance > 0.125)
-  {
-    ship_destruction = false;
-    distance = 0.0f;
-    ship.reset();
-    ship_ready = false;
-  }
-
-  distance += delta;
-
   glm::mat4 model;
 
   glBindVertexArray(ship_sideA_vao);
@@ -370,37 +383,8 @@ void draw_destroyed_ship(GLfloat delta, GLint modelLoc)
   glBindVertexArray(0);  
 }
 
-void draw()
+void draw_large_asteroids(GLfloat delta, GLint modelLoc)
 {
-  static GLfloat last = 0;
-  static GLfloat last_delta = 0;
-  GLfloat now;
-  GLfloat delta;
-  static int counter=0;
-
-  cout << last_delta << endl;
-
-  now = glfwGetTime();
-
-  if(!ship_ready){
-    // delta = last_delta;
-    delta = now - last;
-    delta /= 10.0;
-  }
-  else
-  {
-    delta = now - last;
-    delta /= 10.0;
-  }
-
-  last_delta = delta;
-
-  last = now;
-  GLint modelLoc = glGetUniformLocation(program, "model");
-
-  glClear(GL_COLOR_BUFFER_BIT);
-
-// draw large asteroids
   glBindVertexArray(large_asteroids_vao);
 
   for(int i=0; i != large_asteroids.size(); i++)
@@ -414,13 +398,15 @@ void draw()
         ship_destruction = true;
 
       for(int j=0; j<NUM_BULLETS; j++)
+      {
         if(bullets[j].get_active())
+        {
           if(large_asteroids[i].check_collision(bullets[j].get_position()))
           {
             large_asteroids[i].deactivate();
             bullets[j].deactivate();
 
-            for(int k=0; k<medium_asteroids.size()/2; k += 2)
+            for(int k=0; k<medium_asteroids.size(); k++)
             {
               if(!medium_asteroids[k].get_active())
               {
@@ -432,6 +418,8 @@ void draw()
               }
             }
           }
+        }
+      }
 
       large_asteroids[i].check_position();
 
@@ -442,8 +430,10 @@ void draw()
   }
 
   glBindVertexArray(0);
+}
 
-// draw medium asteroids
+void draw_medium_asteroids(GLfloat delta, GLint modelLoc)
+{
   glBindVertexArray(medium_asteroids_vao);
 
   for(int i=0; i != medium_asteroids.size(); i++)
@@ -453,6 +443,32 @@ void draw()
       glm::mat4 model;
 
       medium_asteroids[i].move(delta);
+      
+      if(medium_asteroids[i].check_collision(ship.get_position()) && ship_ready)
+        ship_destruction = true;
+
+      for(int j=0; j<NUM_BULLETS; j++)
+      {
+        if(bullets[j].get_active())
+        {
+          if(medium_asteroids[i].check_collision(bullets[j].get_position()))
+          {
+            medium_asteroids[i].deactivate();
+            bullets[j].deactivate();
+
+            for(int k=0; k<small_asteroids.size(); k++)
+            {
+              if(!small_asteroids[k].get_active())
+              {
+                small_asteroids[k].activate();
+                small_asteroids[k].set_position(medium_asteroids[i].get_position());
+                break;
+              }
+            }
+          }
+        }
+      }
+
       medium_asteroids[i].check_position();
 
       model = glm::translate(model, medium_asteroids[i].get_position());
@@ -461,36 +477,55 @@ void draw()
     }
   }
 
-//   glBindVertexArray(0);  
+  glBindVertexArray(0);
+}
 
-// // draw small asteroids
-//   glBindVertexArray(small_asteroids_vao);
+void draw_small_asteroids(GLfloat delta, GLint modelLoc)
+{
+  glBindVertexArray(small_asteroids_vao);
 
-//   for(int i=0; i != small_asteroids.size(); i++)
-//   {
-//     if(small_asteroids[i].get_active())
-//     {
-//       glm::mat4 model;
+  for(int i=0; i != small_asteroids.size(); i++)
+  {
+    if(small_asteroids[i].get_active())
+    {
+      glm::mat4 model;
 
-//       small_asteroids[i].move(delta);
-//       small_asteroids[i].check_position();
+      small_asteroids[i].move(delta);
 
-//       model = glm::translate(model, small_asteroids[i].get_position());
-//       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-//       glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
-//     }
-//   }
+      if(small_asteroids[i].check_collision(ship.get_position()) && ship_ready)
+        ship_destruction = true;
 
-//   glBindVertexArray(0);  
+      for(int j=0; j<NUM_BULLETS; j++)
+      {
+        if(bullets[j].get_active())
+        {
+          if(small_asteroids[i].check_collision(bullets[j].get_position()))
+          {
+            small_asteroids[i].deactivate();
+            bullets[j].deactivate();
 
-  if(ship_destruction)
-    draw_destroyed_ship(delta, modelLoc);
-  else if(ship_ready)
-    draw_ship(delta, modelLoc);
-  else
-    draw_blinking_ship(delta, modelLoc);
+          if(!asteroids_left())
+            {
+              game_speed += 0.5;
+              create_asteroids();
+            }            
+          }
+        }
+      }
 
-// draw bullets 
+      small_asteroids[i].check_position();
+
+      model = glm::translate(model, small_asteroids[i].get_position());
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+    }
+  }
+
+  glBindVertexArray(0); 
+}
+
+void draw_bullets(GLfloat delta, GLint modelLoc)
+{ 
   glPointSize(4.0);
   glBindVertexArray(bullet_vao);
 
@@ -509,6 +544,72 @@ void draw()
       glDrawArrays(GL_POINTS, 0, 1);      
     }
   }
+}
+
+void draw()
+{
+  static GLfloat last = 0;
+  static bool timer_started = false;
+  static GLfloat destruction_timer = 0;
+  static GLfloat destruction_distance = 0;
+  GLfloat asteroid_speed;
+  GLfloat now;
+  GLfloat delta;
+
+  now = glfwGetTime();
+
+  delta = now - last;
+  delta /= 10;
+
+  asteroid_speed = delta * game_speed;
+
+  last = now;
+
+  GLint modelLoc = glGetUniformLocation(program, "model");
+
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  draw_large_asteroids(asteroid_speed, modelLoc);
+
+  draw_medium_asteroids(asteroid_speed, modelLoc);
+
+  draw_small_asteroids(asteroid_speed, modelLoc);  
+
+  if(ship_destruction)
+  {
+    if(timer_started)
+    { 
+      if(destruction_timer < 2.0)
+      {
+        destruction_timer = glfwGetTime();
+        destruction_distance += delta;
+      }
+      else
+      {
+        ship_destruction = false;
+        timer_started = false;
+        ship.reset();
+        ship_ready = false;
+        destruction_timer = 0.0;
+        destruction_distance = 0.0;
+      }
+    }
+    else
+    {
+      glfwSetTime(0);
+      timer_started = true;
+      last = 0;
+    }
+
+    draw_destroyed_ship(destruction_distance, modelLoc);
+
+  }
+  else if(ship_ready)
+    draw_ship(delta, modelLoc);
+  else
+    draw_blinking_ship(delta, modelLoc);
+
+  draw_bullets(delta, modelLoc);
 }
 
 int main(int argc, char** argv)
