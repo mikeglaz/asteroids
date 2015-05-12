@@ -413,6 +413,14 @@ void draw()
       if(large_asteroids[i].check_collision(ship.get_position()) && ship_ready)
         ship_destruction = true;
 
+      for(int j=0; j<NUM_BULLETS; j++)
+        if(bullets[j].get_active())
+          if(large_asteroids[i].check_collision(bullets[j].get_position()))
+          {
+            large_asteroids[i].deactivate();
+            bullets[j].deactivate();
+          }
+
       large_asteroids[i].check_position();
 
       model = glm::translate(model, large_asteroids[i].get_position());
@@ -481,9 +489,11 @@ void draw()
     if(bullets[i].get_active())
     {
       bullets[i].move(delta);
-      bullets[i].check_position();
       model = glm::translate(model, bullets[i].get_position());   
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));    
+      
+      bullets[i].check_position();
+      
       glDrawArrays(GL_POINTS, 0, 1);      
     }
   }

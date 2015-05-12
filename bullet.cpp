@@ -21,8 +21,16 @@ void Bullet::move(GLfloat delta)
 void Bullet::check_position()
 {
   if(position.x > 1.0 || position.x < -1.0)
+  {
     active = GL_FALSE;
+    position.x = 0.0f;
+    position.y = 0.0f;
+  }
 
   if(position.y > 1.0 || position.y < -1.0)
+  {
     active = GL_FALSE;
+    position.x = 0.0f;
+    position.y = 0.0f;    
+  }
 }

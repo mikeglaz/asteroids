@@ -2,7 +2,6 @@
 
 class Bullet : public Projectile
 {
-  GLboolean active;
 public:
   Bullet(GLfloat x, GLfloat y) : Projectile{x,y} {
     active = GL_FALSE;
