@@ -10,20 +10,20 @@ void Ship::accelerate()
   GLfloat radians = glm::radians(angle);
 
   if(speed.x < 3.0f && speed.x > -3.0f)
-    speed.x += .01*cos(radians);
+    speed.x += .1*cos(radians);
 
   if(speed.x >= 3.0f && cos(radians) < 0.0f)
-    speed.x += .01*cos(radians);
+    speed.x += .1*cos(radians);
   else if(speed.x <= -3.0f && cos(radians) > 0.0f)
-    speed.x += .01*cos(radians);
+    speed.x += .1*cos(radians);
 
   if(speed.y < 3.0f && speed.y > -3.0f)
-    speed.y += .01*sin(radians);
+    speed.y += .1*sin(radians);
 
   if(speed.y >= 3.0f && sin(radians) < 0.0f)
-    speed.y += .01*sin(radians);
+    speed.y += .1*sin(radians);
   else if(speed.y <= -3.0f && sin(radians) > 0.0f)
-    speed.y += .01*sin(radians);
+    speed.y += .1*sin(radians);
 }
 
 void Ship::move(GLfloat delta)
@@ -35,14 +35,14 @@ void Ship::move(GLfloat delta)
 void Ship::rotate(Direction dir)
 {
   if(dir == Direction::left)
-    angle += 0.25f;
+    angle += 2.0f;
   else
-    angle -= 0.25f;
+    angle -= 2.0f;
 
   if(angle > 360)
     angle = 0.0f;
   else if(angle < 0)
-    angle = 360.0f;  
+    angle = 360.0f;
 }
 
 void Ship::reset()
@@ -70,12 +70,12 @@ GLubyte* Ship::get_sideA()
   return sideA;
 }
 
-GLubyte* Ship::get_sideB() 
+GLubyte* Ship::get_sideB()
 {
   return sideB;
 }
 
-GLubyte* Ship::get_sideC() 
+GLubyte* Ship::get_sideC()
 {
   return sideC;
 }

@@ -98,7 +98,7 @@ void init_glfw()
 
 void create_asteroids()
 {
-  Asteroid::generate_asteroid_vertices(NUM_ASTEROID_VERTICES, Radius::large);  
+  Asteroid::generate_asteroid_vertices(NUM_ASTEROID_VERTICES, Radius::large);
 
   for(int i=0; i != NUM_LARGE_ASTEROIDS; i++)
   {
@@ -107,7 +107,7 @@ void create_asteroids()
     large_asteroids.push_back(asteroid);
   }
 
-  Asteroid::generate_asteroid_vertices(NUM_ASTEROID_VERTICES, Radius::medium);  
+  Asteroid::generate_asteroid_vertices(NUM_ASTEROID_VERTICES, Radius::medium);
 
   for(int i=0; i != NUM_MEDIUM_ASTEROIDS; i++)
   {
@@ -115,13 +115,13 @@ void create_asteroids()
     medium_asteroids.push_back(asteroid);
   }
 
-  Asteroid::generate_asteroid_vertices(NUM_ASTEROID_VERTICES, Radius::small);  
+  Asteroid::generate_asteroid_vertices(NUM_ASTEROID_VERTICES, Radius::small);
 
   for(int i=0; i != NUM_SMALL_ASTEROIDS; i++)
   {
     Asteroid asteroid(Radius::small);
     small_asteroids.push_back(asteroid);
-  }    
+  }
 }
 
 bool asteroids_left()
@@ -158,7 +158,7 @@ void init_asteroids()
 {
   // init large asteroids
   glGenVertexArrays(1, &large_asteroids_vao);
-  glGenBuffers(1, &large_asteroids_vbo); 
+  glGenBuffers(1, &large_asteroids_vbo);
   glBindVertexArray(large_asteroids_vao);
 
   glBindBuffer(GL_ARRAY_BUFFER, large_asteroids_vbo);
@@ -170,7 +170,7 @@ void init_asteroids()
 
   // init medium asteroids
   glGenVertexArrays(1, &medium_asteroids_vao);
-  glGenBuffers(1, &medium_asteroids_vbo); 
+  glGenBuffers(1, &medium_asteroids_vbo);
   glBindVertexArray(medium_asteroids_vao);
 
   glBindBuffer(GL_ARRAY_BUFFER, medium_asteroids_vbo);
@@ -182,7 +182,7 @@ void init_asteroids()
 
   // init small asteroids
   glGenVertexArrays(1, &small_asteroids_vao);
-  glGenBuffers(1, &small_asteroids_vbo); 
+  glGenBuffers(1, &small_asteroids_vbo);
   glBindVertexArray(small_asteroids_vao);
 
   glBindBuffer(GL_ARRAY_BUFFER, small_asteroids_vbo);
@@ -190,7 +190,7 @@ void init_asteroids()
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(0);
 
-  glBindVertexArray(0);  
+  glBindVertexArray(0);
 }
 
 void init_ship()
@@ -205,7 +205,7 @@ void init_ship()
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(0);
 
-  glBindVertexArray(0);  
+  glBindVertexArray(0);
 }
 
 void init_ship_sides()
@@ -224,7 +224,7 @@ void init_ship_sides()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ship_sideA_buffer);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*2, ship.get_sideA(), GL_STATIC_DRAW);
 
-  glBindVertexArray(0);  
+  glBindVertexArray(0);
 
 // side B
   glGenVertexArrays(1, &ship_sideB_vao);
@@ -250,7 +250,7 @@ void init_ship_sides()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ship_sideC_buffer);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte)*2, ship.get_sideC(), GL_STATIC_DRAW);
 
-  glBindVertexArray(0);    
+  glBindVertexArray(0);
 }
 
 void init_bullets()
@@ -265,7 +265,7 @@ void init_bullets()
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(0);
 
-  glBindVertexArray(0);  
+  glBindVertexArray(0);
 }
 
 void init_opengl()
@@ -296,7 +296,7 @@ void check_keyboard()
   if(state == GLFW_PRESS)
     ship.rotate(Direction::right);
 
-  state = glfwGetKey(window, GLFW_KEY_UP);  
+  state = glfwGetKey(window, GLFW_KEY_UP);
 
   if(state == GLFW_PRESS)
     ship.accelerate();
@@ -338,7 +338,7 @@ void draw_blinking_ship(GLfloat delta, GLfloat modelLoc)
   ship.move(delta);
   ship.check_position();
 
-  model = glm::translate(model, ship.get_position());  
+  model = glm::translate(model, ship.get_position());
   model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
@@ -358,7 +358,7 @@ void draw_destroyed_ship(GLfloat distance, GLint modelLoc)
 
   glBindVertexArray(ship_sideA_vao);
   model = glm::translate(model, ship.get_position());
-  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));  
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
   model = glm::translate(model, glm::vec3(distance, 0.0f, 0.0f));
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, 0);
@@ -367,20 +367,20 @@ void draw_destroyed_ship(GLfloat distance, GLint modelLoc)
   glBindVertexArray(ship_sideB_vao);
   model = glm::mat4();
   model = glm::translate(model, ship.get_position());
-  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));  
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
   model = glm::translate(model, glm::vec3(0.0f, distance, 0.0f));
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));  
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, 0);
-  glBindVertexArray(0);  
+  glBindVertexArray(0);
 
   glBindVertexArray(ship_sideC_vao);
   model = glm::mat4();
   model = glm::translate(model, ship.get_position());
-  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f)); 
+  model = glm::rotate(model, glm::radians(ship.get_angle()), glm::vec3(0.0f, 0.0f, 1.0f));
   model = glm::translate(model, glm::vec3(distance, distance, 0.0f));
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));  
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
   glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, 0);
-  glBindVertexArray(0);  
+  glBindVertexArray(0);
 }
 
 void draw_large_asteroids(GLfloat delta, GLint modelLoc)
@@ -425,7 +425,7 @@ void draw_large_asteroids(GLfloat delta, GLint modelLoc)
 
       model = glm::translate(model, large_asteroids[i].get_position());
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);
     }
   }
 
@@ -443,7 +443,7 @@ void draw_medium_asteroids(GLfloat delta, GLint modelLoc)
       glm::mat4 model;
 
       medium_asteroids[i].move(delta);
-      
+
       if(medium_asteroids[i].check_collision(ship.get_position()) && ship_ready)
         ship_destruction = true;
 
@@ -473,7 +473,7 @@ void draw_medium_asteroids(GLfloat delta, GLint modelLoc)
 
       model = glm::translate(model, medium_asteroids[i].get_position());
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);
     }
   }
 
@@ -508,7 +508,7 @@ void draw_small_asteroids(GLfloat delta, GLint modelLoc)
             {
               game_speed += 0.5;
               create_asteroids();
-            }            
+            }
           }
         }
       }
@@ -517,15 +517,15 @@ void draw_small_asteroids(GLfloat delta, GLint modelLoc)
 
       model = glm::translate(model, small_asteroids[i].get_position());
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);    
+      glDrawArrays(GL_LINE_LOOP, 0, NUM_ASTEROID_VERTICES);
     }
   }
 
-  glBindVertexArray(0); 
+  glBindVertexArray(0);
 }
 
 void draw_bullets(GLfloat delta, GLint modelLoc)
-{ 
+{
   glPointSize(4.0);
   glBindVertexArray(bullet_vao);
 
@@ -536,12 +536,12 @@ void draw_bullets(GLfloat delta, GLint modelLoc)
     if(bullets[i].get_active())
     {
       bullets[i].move(delta);
-      model = glm::translate(model, bullets[i].get_position());   
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));    
-      
+      model = glm::translate(model, bullets[i].get_position());
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
       bullets[i].check_position();
 
-      glDrawArrays(GL_POINTS, 0, 1);      
+      glDrawArrays(GL_POINTS, 0, 1);
     }
   }
 }
@@ -573,12 +573,12 @@ void draw()
 
   draw_medium_asteroids(asteroid_speed, modelLoc);
 
-  draw_small_asteroids(asteroid_speed, modelLoc);  
+  draw_small_asteroids(asteroid_speed, modelLoc);
 
   if(ship_destruction)
   {
     if(timer_started)
-    { 
+    {
       if(destruction_timer < 2.0)
       {
         destruction_timer = glfwGetTime();
